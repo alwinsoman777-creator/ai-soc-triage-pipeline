@@ -124,10 +124,12 @@ Open http://<MANAGER_IP>:5000 to access the SOC command console.
 
 **Verification & Testing**
 
+**Verification & Testing**
+
 Trigger High-Severity Alert on Windows:
 
+```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Invoke-Expression 'Write-Output Testing-SOC-Pipeline'"
-
 ------------------------------------------
 
 **Incident Triage & Analysis:**
