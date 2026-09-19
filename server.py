@@ -54,9 +54,11 @@ def triage_alert(alert: dict) -> dict:
     cmd = eventdata.get("commandLine", "") or ""
     parent_cmd = eventdata.get("parentCommandLine", "") or ""
     rule_desc = alert.get("rule", {}).get("description", "Unknown Alert")
-    mitre_info = alert.get("rule", {}).get("mitre", {})
-    mitre_tech = " / ".join(mitre_info.get("technique", ["T1059.001 - Execution"]))
-    mitre_tactic = " / ".join(mitre_info.get("tactic", ["Execution"]))
+    mitre_info = alert.get("rule", {}).get("mitre", {}) or {}
+    raw_tech = mitre_info.get("technique") or mitre_info.get("id") or ["T1059.001 - Execution"]
+    raw_tactic = mitre_info.get("tactic") or ["Execution"]
+    mitre_tech = " / ".join(raw_tech) if isinstance(raw_tech, list) else str(raw_tech)
+    mitre_tactic = " / ".join(raw_tactic) if isinstance(raw_tactic, list) else str(raw_tactic)
 
     # 1. Environment Memory Lookup
     with get_db() as conn:

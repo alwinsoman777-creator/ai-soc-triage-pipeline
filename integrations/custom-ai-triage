@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+import sys
+import json
+import urllib.request
+
+# Argument layout provided by Wazuh:
+# sys.argv[1] = alert file path
+# sys.argv[2] = API key (if provided)
+# sys.argv[3] = hook_url
+
+alert_file = sys.argv[1]
+hook_url = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] else "http://127.0.0.1:5000/webhook/wazuh"
+
+try:
+    with open(alert_file, 'r') as f:
+        payload = json.load(f)
+
+    req = urllib.request.Request(
+        hook_url,
+        data=json.dumps(payload).encode('utf-8'),
+        headers={'Content-Type': 'application/json'}
+    )
+    urllib.request.urlopen(req, timeout=5)
+except Exception as e:
+    with open("/tmp/integrator_err.log", "a") as log:
+        log.write(f"Error: {e}\n")
+    sys.exit(1)
