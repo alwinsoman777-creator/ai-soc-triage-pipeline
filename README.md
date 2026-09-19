@@ -147,11 +147,11 @@ Forensic Artifacts: User Account, PID, Parent Image, Parent Command Line, and SH
 Click Allowlist to train the environment memory store.
 
 Subsequent executions of the pattern are automatically recognized as False Positive (Allowlisted) with 99% confidence.
+'''
 
+![SOC Dashboard Overview](https://github.com/user-attachments/assets/ce5ebc9f-fca8-4f94-a3f0-5d29ae896068)
 
-<img width="1920" height="988" alt="image" src="https://github.com/user-attachments/assets/ce5ebc9f-fca8-4f94-a3f0-5d29ae896068" />
-
-<img width="1820" height="869" alt="image" src="https://github.com/user-attachments/assets/cf48ab45-aa86-4e28-baae-10813d412065" />
+![Incident Forensics & IOC Drawer](https://github.com/user-attachments/assets/cf48ab45-aa86-4e28-baae-10813d412065)
 
 
 
