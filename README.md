@@ -1,7 +1,40 @@
-# Production-Grade AI SOC Triage & Adaptive Feedback Pipeline
 
-An automated Tier-1/Tier-2 SOC triage pipeline that ingests Windows Sysmon telemetry via Wazuh EDR, triggers custom MITRE ATT&CK detection rules, dispatches high-severity alerts to a FastAPI triage engine, and renders structured incident rationales and forensic IOCs inside an adaptive human-in-the-loop analyst console.
+## Executive Summary
+In modern enterprise environments, Security Operations Centers face an overwhelming volume of endpoint telemetry and false-positive security alerts. Analysts routinely spend 70% of their operational cycles manually decoding base64 commands, correlating parent-child process relationships, and cross-referencing benign system binaries. This operational fatigue increases Mean Time to Detect (MTTD), inflates dwell time, and diverts senior talent from proactive threat hunting.
 
+This project delivers an end-to-end detection engineering and autonomous triage system. Integrating kernel-level **Windows Sysmon** telemetry, **Wazuh SIEM/EDR** log correlation, and an asynchronous **FastAPI** reasoning engine, the pipeline automates the initial triage phase of incident response while maintaining a resilient human-in-the-loop validation interface.
+
+---
+
+## Core Objectives
+* **Sub-Second Automated Triage:** Ingest process execution telemetry, extract key forensic artifacts, and evaluate threat indicators instantly upon alert triggering.
+* **Eliminate Repetitive False Positives:** Implement continuous few-shot environment memory so human-validated benign activity automatically tunes future scoring without vulnerable blanket rule exclusions.
+* **Bridge Detection to Action:** Map raw execution anomalies directly to MITRE ATT&CK techniques with clear contextual narratives that accelerate Tier-1 decisions.
+* **Zero-Disruption Deployment:** Integrate with open-source SIEM infrastructure without heavy proprietary agent overhead.
+
+---
+
+## Scope & Operational Boundary
+
+### In Scope
+* **Endpoint Telemetry Capture:** Windows Sysmon (EID 1: Process Creation) collecting execution trees, command lines, hashes, and token authentications.
+* **Custom Detection Engineering:** Wazuh Manager rules mapped to MITRE ATT&CK (e.g., T1059.001 - Command and Scripting Interpreter: PowerShell).
+* **Automated Forensic Extraction:** Dynamic extraction of process IDs, parent lineage, base64 payloads, execution paths, and hashes.
+* **Adaptive Learning Console:** A responsive analyst command console equipped with granular forensic drawer expansion and one-click feedback mechanisms ("Allowlist" / "Confirm Malicious").
+
+### Out of Scope
+* Direct automated host network isolation or process termination (focused on intelligent triage rather than destructive SOAR response).
+* Non-Windows endpoint telemetry ingestion.
+
+---
+
+## Strategic Impact & Potential
+* **Operational ROI:** Reduces manual triage time per alert from minutes to under 5 seconds, reclaiming significant analyst hours across shifts.
+* **Defensible Context:** Equips entry-level analysts with contextual explanations and MITRE mappings, standardizing triage quality across all experience levels.
+* **Adaptive Tuning Without Blind Spots:** Traditional SIEM allowlists often rely on static exclusions that attackers can bypass. This pipeline evaluates behavioral patterns against historical analyst decisions, preserving alert integrity while eliminating analyst fatigue.
+* **Foundation for Enterprise Scaling:** The lightweight asynchronous microservice architecture can plug into enterprise orchestration platforms (Slack, Jira, Splunk, TheHive) or interface directly with frontier LLM APIs for deeper payload deobfuscation.
+
+---
 ---
 
 ## System Architecture
