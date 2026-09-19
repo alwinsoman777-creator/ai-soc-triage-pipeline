@@ -22,9 +22,7 @@ This project delivers an end-to-end detection engineering and autonomous triage 
 * **Automated Forensic Extraction:** Dynamic extraction of process IDs, parent lineage, base64 payloads, execution paths, and hashes.
 * **Adaptive Learning Console:** A responsive analyst command console equipped with granular forensic drawer expansion and one-click feedback mechanisms ("Allowlist" / "Confirm Malicious").
 
-### Out of Scope
-* Direct automated host network isolation or process termination (focused on intelligent triage rather than destructive SOAR response).
-* Non-Windows endpoint telemetry ingestion.
+
 
 ---
 
