@@ -154,7 +154,3 @@ Subsequent executions of the pattern are automatically recognized as False Posit
 ![SOC Dashboard Overview](https://github.com/user-attachments/assets/ce5ebc9f-fca8-4f94-a3f0-5d29ae896068)
 
 ![Incident Forensics & IOC Drawer](https://github.com/user-attachments/assets/cf48ab45-aa86-4e28-baae-10813d412065)
-
-
-
-
