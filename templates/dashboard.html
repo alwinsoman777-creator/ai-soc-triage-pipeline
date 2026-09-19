@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SOC Triage & Incident Command</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans">
+  <header class="border-b border-slate-800 bg-slate-900/60 px-8 py-4 flex justify-between items-center">
+    <div>
+      <h1 class="text-xl font-bold tracking-tight text-white">SOC TRIAGE & INCIDENT COMMAND</h1>
+      <p class="text-xs text-slate-400">Continuous Environment Learning • Automated IOC Extraction</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Wazuh Ingestion Active
+      </span>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-8 py-6">
+    <div class="overflow-x-auto rounded-lg border border-slate-800 bg-slate-900/40 shadow-xl">
+      <table class="w-full text-left text-sm border-collapse">
+        <thead class="bg-slate-900 text-xs uppercase text-slate-400 border-b border-slate-800">
+          <tr>
+            <th class="w-8 px-4 py-4"></th>
+            <th class="px-4 py-4">Timestamp (UTC)</th>
+            <th class="px-4 py-4">Agent</th>
+            <th class="px-4 py-4">Detection</th>
+            <th class="px-4 py-4">Verdict</th>
+            <th class="px-4 py-4">Confidence</th>
+            <th class="px-4 py-4 text-right pr-6">Feedback Loop</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800/60">
+          {% for row in incidents %}
+          <!-- Main Clickable Row -->
+          <tr class="hover:bg-slate-800/40 transition-colors cursor-pointer" onclick="toggleDetails('details-{{ row.id }}', 'icon-{{ row.id }}')">
+            <td class="px-4 py-4 text-center">
+              <svg id="icon-{{ row.id }}" class="w-4 h-4 text-slate-400 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </td>
+            <td class="px-4 py-4 text-slate-400 font-mono text-xs whitespace-nowrap">{{ row.timestamp }}</td>
+            <td class="px-4 py-4 font-semibold text-slate-200">{{ row.agent_name }}</td>
+            <td class="px-4 py-4">
+              <span class="text-xs font-mono bg-slate-800 px-2 py-0.5 rounded text-indigo-300">Rule {{ row.rule_id }}</span>
+              <div class="text-xs text-slate-400 mt-1 truncate max-w-sm">{{ row.rule_desc }}</div>
+            </td>
+            <td class="px-4 py-4">
+              <span class="px-2.5 py-1 rounded text-xs font-semibold 
+                {% if 'True Positive' in row.verdict or 'Malicious' in row.verdict %} bg-rose-500/10 text-rose-400 border border-rose-500/20
+                {% elif 'Simulation' in row.verdict %} bg-sky-500/10 text-sky-400 border border-sky-500/20
+                {% else %} bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 {% endif %}">
+                {{ row.verdict }}
+              </span>
+            </td>
+            <td class="px-4 py-4 font-mono text-slate-300">{{ row.confidence }}%</td>
+            <td class="px-4 py-4 text-right pr-6" onclick="event.stopPropagation()">
+              {% if row.analyst_feedback == 'UNREVIEWED' %}
+              <div class="inline-flex gap-2 text-xs">
+                <button onclick="submitFeedback({{ row.id }}, 'FALSE_POSITIVE')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700">Allowlist</button>
+                <button onclick="submitFeedback({{ row.id }}, 'CONFIRMED_THREAT')" class="px-2.5 py-1 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 rounded border border-rose-800">Confirm Malicious</button>
+              </div>
+              {% else %}
+              <span class="text-xs font-mono text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded">{{ row.analyst_feedback }}</span>
+              {% endif %}
+            </td>
+          </tr>
+
+          <!-- Expandable Triage Report Drawer -->
+          <tr id="details-{{ row.id }}" class="hidden bg-slate-900/90 border-b border-slate-800">
+            <td colspan="7" class="px-8 py-6">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Col 1: Threat Rationale & Recommendations -->
+                <div class="md:col-span-2 space-y-4">
+                  <div>
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-indigo-400 mb-1">AI Triage Rationale & Synthesis</h4>
+                    <p class="text-sm text-slate-300 leading-relaxed bg-slate-950/60 p-3.5 rounded border border-slate-800">{{ row.threat_summary }}</p>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-950/60 p-3 rounded border border-slate-800">
+                      <span class="text-xs font-semibold uppercase text-slate-400 block mb-1">MITRE ATT&CK Mapping</span>
+                      <span class="text-xs font-mono text-amber-300 block">{{ row.mitre_tactic }}</span>
+                      <span class="text-xs font-mono text-slate-300">{{ row.mitre_technique }}</span>
+                    </div>
+                    <div class="bg-slate-950/60 p-3 rounded border border-slate-800">
+                      <span class="text-xs font-semibold uppercase text-slate-400 block mb-1">Recommended Containment Action</span>
+                      <span class="text-xs text-rose-300 font-medium">{{ row.recommended_action }}</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-1">Command-Line Invocation</span>
+                    <pre class="text-xs font-mono bg-black/70 p-3 rounded text-emerald-400 border border-slate-800 overflow-x-auto whitespace-pre-wrap break-all">{{ row.command_line }}</pre>
+                  </div>
+                </div>
+
+                <!-- Col 2: Extracted Artifacts & Lineage (IOCs) -->
+                <div class="bg-slate-950/70 p-4 rounded-lg border border-slate-800 space-y-3">
+                  <h4 class="text-xs font-semibold uppercase tracking-wider text-indigo-400 border-b border-slate-800 pb-2">Forensic Artifacts & IOCs</h4>
+                  
+                  <div>
+                    <span class="text-[11px] uppercase text-slate-500 block font-semibold">User Account</span>
+                    <span class="text-xs font-mono text-slate-200">{{ row.user_account }}</span>
+                  </div>
+
+                  <div>
+                    <span class="text-[11px] uppercase text-slate-500 block font-semibold">Process ID (PID)</span>
+                    <span class="text-xs font-mono text-slate-200">{{ row.process_id }}</span>
+                  </div>
+
+                  <div>
+                    <span class="text-[11px] uppercase text-slate-500 block font-semibold">Parent Process Binary</span>
+                    <span class="text-xs font-mono text-slate-300 break-all">{{ row.parent_process }}</span>
+                  </div>
+
+                  <div>
+                    <span class="text-[11px] uppercase text-slate-500 block font-semibold">Parent Invocation</span>
+                    <span class="text-xs font-mono text-slate-400 break-all">{{ row.parent_cmd }}</span>
+                  </div>
+
+                  <div>
+                    <span class="text-[11px] uppercase text-slate-500 block font-semibold">Cryptographic Hashes</span>
+                    <div class="text-[11px] font-mono text-slate-400 bg-slate-900 p-2 rounded break-all border border-slate-800/80 mt-1 max-h-24 overflow-y-auto">
+                      {{ row.hashes }}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    function toggleDetails(rowId, iconId) {
+      const row = document.getElementById(rowId);
+      const icon = document.getElementById(iconId);
+      if (row.classList.contains('hidden')) {
+        row.classList.remove('hidden');
+        icon.classList.add('rotate-180');
+      } else {
+        row.classList.add('hidden');
+        icon.classList.remove('rotate-180');
+      }
+    }
+
+    async function submitFeedback(id, label) {
+      await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ incident_id: id, feedback: label })
+      });
+      location.reload();
+    }
+  </script>
+</body>
+</html>
